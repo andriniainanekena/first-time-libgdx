@@ -33,8 +33,10 @@ public class ObstacleSpawner {
 
     private void spawn() {
         float height = MathUtils.random(45f, 85f);
-        float width = height * 0.6f;
         TextureRegion region = variants.isEmpty() ? null : variants.get(MathUtils.random(variants.size() - 1));
+        float width = region != null
+            ? height * region.getRegionWidth() / (float) region.getRegionHeight()
+            : height * 0.6f;
         obstacles.add(new Obstacle(GameConfig.WORLD_WIDTH + width, GameConfig.GROUND_Y, width, height, region));
     }
 
