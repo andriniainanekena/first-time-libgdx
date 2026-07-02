@@ -24,4 +24,7 @@ public final class GameConfig {
 
     public static final String PREFS_NAME = "dino-runner-prefs";
     public static final String HIGH_SCORE_KEY = "high-score";
+
+    public static final int CACTUS_SHEET_COLUMNS = 9;
+    public static final int CACTUS_SHEET_ROWS = 2;
 }
