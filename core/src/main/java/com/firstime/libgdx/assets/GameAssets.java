@@ -7,6 +7,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Disposable;
+import com.firstime.libgdx.util.GameConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,28 +26,49 @@ public class GameAssets implements Disposable {
     private final List<Texture> ownedTextures = new ArrayList<>();
 
     public GameAssets() {
-        loadSequence("dino/run", "run", dinoRunFrames);
-        loadSequence("dino/jump", "jump", dinoJumpFrames);
-        loadSequence("dino/hurt", "hurt", dinoHurtFrames);
-        loadSequence("obstacles", "cactus", cactusVariants);
+        loadStrip("dino/run.png", dinoRunFrames);
+        loadStrip("dino/jump.png", dinoJumpFrames);
+        loadStrip("dino/hurt.png", dinoHurtFrames);
+        loadGrid("obstacles/cactus.png", GameConfig.CACTUS_SHEET_COLUMNS, GameConfig.CACTUS_SHEET_ROWS, cactusVariants);
 
         jumpSound = loadSoundIfPresent("sfx/jump.wav");
         hitSound = loadSoundIfPresent("sfx/hit.wav");
         music = loadMusicIfPresent("music/theme.ogg");
     }
 
-    private void loadSequence(String directory, String prefix, List<TextureRegion> target) {
-        int index = 0;
-        while (true) {
-            FileHandle handle = Gdx.files.internal(directory + "/" + prefix + index + ".png");
-            if (!handle.exists()) {
-                break;
+    private void loadStrip(String path, List<TextureRegion> target) {
+        FileHandle handle = Gdx.files.internal(path);
+        if (!handle.exists()) {
+            return;
+        }
+        Texture texture = new Texture(handle);
+        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        ownedTextures.add(texture);
+
+        int frameSize = texture.getHeight();
+        int columns = Math.max(1, texture.getWidth() / frameSize);
+        TextureRegion[][] split = TextureRegion.split(texture, frameSize, frameSize);
+        for (int i = 0; i < columns; i++) {
+            target.add(split[0][i]);
+        }
+    }
+
+    private void loadGrid(String path, int columns, int rows, List<TextureRegion> target) {
+        FileHandle handle = Gdx.files.internal(path);
+        if (!handle.exists()) {
+            return;
+        }
+        Texture texture = new Texture(handle);
+        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        ownedTextures.add(texture);
+
+        int frameWidth = texture.getWidth() / columns;
+        int frameHeight = texture.getHeight() / rows;
+        TextureRegion[][] split = TextureRegion.split(texture, frameWidth, frameHeight);
+        for (TextureRegion[] row : split) {
+            for (TextureRegion region : row) {
+                target.add(region);
             }
-            Texture texture = new Texture(handle);
-            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            ownedTextures.add(texture);
-            target.add(new TextureRegion(texture));
-            index++;
         }
     }
 
